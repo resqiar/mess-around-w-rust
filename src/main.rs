@@ -1,20 +1,26 @@
+use ansi_term::Color::Yellow;
+use ansi_term::Style;
 use rand::Rng;
 use std::{cmp::Ordering, io, time::Instant};
 
 fn main() {
-    let v = version(5);
-
-    println!("== Guess the Number Game (GNG v{v}) ==");
+    println!("== Guess the Number Game ==");
 
     println!("PICK A LEVEL");
 
     // Pick a level here
-    let level: i32 = take_level_input();
+    let level: (i32, String) = take_level_input();
 
-    println!("Input the number between 1 - {level} and i will tell you if it is higher or lower");
+    // Print divider
+    show_divider();
+
+    println!(
+        "Input the number between 1 - {} and i will tell you if it is higher or lower",
+        level.0
+    );
 
     // Generate a secret_number based on random number from 1 - n
-    let secret_number = rand::thread_rng().gen_range(1..=level);
+    let secret_number = rand::thread_rng().gen_range(1..=level.0);
 
     // Steps to take for user to guess the secret number
     let mut steps: u32 = 0;
@@ -23,27 +29,37 @@ fn main() {
     let duration_start = Instant::now();
 
     loop {
+        // Take a user guess (input)
         let guess: i32 = take_input();
 
         // increment the steps by 1
         steps += 1;
 
         match guess.cmp(&secret_number) {
-            Ordering::Less => println!("Lol too small!"),
+            Ordering::Less => println!("Too small!"),
             Ordering::Equal => {
-                let duration = duration_start.elapsed();
+                // Duration since the game started
+                let duration: u128 = duration_start.elapsed().as_millis();
+                let duration: String = duration.to_string();
 
-                println!("GG! You guessed me!");
-                println!("You guessed the number {secret_number} in {steps} time(s).");
-                println!(
-                    "It takes {:#?} for you to guess the number. is it bad?",
-                    duration
-                );
+                // Print divider
+                show_divider();
+
+                println!("Well Played! You guessed me! \n");
+
+                let level_str: String = level.1;
+
+                println!("Stats for guessing number {secret_number}: ");
+                println!("1. Level = {}", Yellow.bold().paint(level_str));
+                println!("2. Step taken = {}", Yellow.bold().paint(steps.to_string()));
+                println!("3. Time taken = {}ms", Yellow.bold().paint(duration));
+
+                // Print divider
+                show_divider();
 
                 break;
             }
-
-            Ordering::Greater => println!("Lower mate!"),
+            Ordering::Greater => println!("Too big!"),
         }
     }
 }
@@ -60,7 +76,7 @@ fn take_input() -> i32 {
     return guess;
 }
 
-fn take_level_input() -> i32 {
+fn take_level_input() -> (i32, String) {
     println!("Easy = E, Normal = N, Hard = H, Unbelievable = U");
 
     let mut level = String::new();
@@ -75,32 +91,37 @@ fn take_level_input() -> i32 {
     // The first letter of chars
     let level = chars[0];
 
-    let level_ratio: i32 = match level {
+    let level_ratio: (i32, String) = match level {
         'e' => {
-            println!("YOU CHOOSE EASY");
-            10
+            println!("{}", Style::new().bold().paint("YOU CHOOSE EASY"));
+            (10, String::from("Easy"))
         }
         'n' => {
-            println!("YOU CHOOSE NORMAL");
-            100
+            println!("{}", Style::new().bold().paint("YOU CHOOSE NORMAL"));
+            (100, String::from("Normal"))
         }
         'h' => {
-            println!("YOU CHOOSE HARD");
-            300
+            println!("{}", Style::new().bold().paint("YOU CHOOSE HARD"));
+            (500, String::from("Hard"))
         }
         'u' => {
-            println!("YOU CHOOSE UNBELIEVABLE!!!");
-            1000
+            println!("{}", Style::new().bold().paint("YOU CHOOSE UNBELIEVABLE"));
+            (10000, String::from("Unbelievable"))
         }
         _ => {
-            println!("YOU DONT PICK!!! SETTING TO DEFAULT (EASY)");
-            10
+            println!(
+                "{}",
+                Style::new()
+                    .bold()
+                    .paint("YOU DONT PICK!!! SETTING TO DEFAULT (EASY)")
+            );
+            (10, String::from("Easy"))
         }
     };
 
     return level_ratio;
 }
 
-fn version(num: i32) -> i32 {
-    num + 1
+fn show_divider() {
+    println!("<====================================>");
 }
