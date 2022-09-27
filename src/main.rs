@@ -6,8 +6,6 @@ use std::{cmp::Ordering, io, time::Instant};
 fn main() {
     println!("== Guess the Number Game ==");
 
-    println!("PICK A LEVEL");
-
     // Pick a level here
     let level: (i32, String) = take_level_input();
 
@@ -77,6 +75,8 @@ fn take_input() -> i32 {
 }
 
 fn take_level_input() -> (i32, String) {
+    println!("PICK A LEVEL");
+
     println!("Easy = E, Normal = N, Hard = H, Unbelievable = U");
 
     let mut level = String::new();
